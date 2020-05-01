@@ -3,7 +3,10 @@ from . import routesCalculateView
 
 urlpatterns = [
     path('', routesCalculateView.createCity, name='post_cities'),
-    path('insertWithRoad', routesCalculateView.createCityWithRoad, name='post_cities_rel'),
+    path('insertRoad', routesCalculateView.createRoad, name='post_cities_rel'),
     path('buscarNos', routesCalculateView.getCity, name='get_cities'),
+    path('getDistance', routesCalculateView.getDistance, name='get_distance'),
+    path('getShortestDistance', routesCalculateView.calcularShortestRoute, name='get_shortest_distance')
+
 
 ]

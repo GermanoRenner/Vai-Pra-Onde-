@@ -11,21 +11,42 @@ def createCity(request):
     return HttpResponse('Ola MUndo!')
 
 @csrf_exempt 
-def createCityWithRoad(request):
+def createRoad(request):
     de = json.loads(request.body)['de']
     para = json.loads(request.body)['para']
     roadKm = json.loads(request.body)['roadKm']
 
     print(de, para, roadKm)
-    neoData.createNodeWithRel(de, para, 'Cidade', 'km', roadKm, False)
+    neoData.createRel(de, para, 'km', roadKm)
     return HttpResponse('Ola MUndo!')
 
 
 @csrf_exempt 
 def getCity(request):
-    result = neoData.simpleSelect('Cidade', None)
-    response = []
-    for r in result:
-        print('nome: ', r[0]['name'])
-        response.append({'nome': r[0]['name']})
-    return HttpResponse(response)
+    request1 = json.loads(request.body)
+    nome = request1['nome']
+    result = neoData.getCity('Cidade', nome)
+    resposta = json.dumps(result)
+
+    return HttpResponse(resposta, content_type='application/json')
+
+    
+
+@csrf_exempt 
+def getDistance(request):
+    de = json.loads(request.body)['de']
+    para = json.loads(request.body)['para']
+    result = neoData.getDistance(de, para, 'km')
+    print('RESULTO', result)
+    resposta = json.dumps(result)
+    return HttpResponse(resposta, content_type='application/json')
+
+
+@csrf_exempt 
+def calcularShortestRoute(request):
+    de = json.loads(request.body)['de']
+    para = json.loads(request.body)['para']
+    result = neoData.calcularShortestRoute(de, para)
+    
+    resposta = json.dumps(result)
+    return HttpResponse(resposta, content_type='application/json')

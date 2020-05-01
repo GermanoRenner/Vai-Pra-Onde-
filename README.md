@@ -9,7 +9,7 @@
 </p>
 
 
-## Stacks utilizadas:
+## Stacks:
 
 - Python
 - Framework Django

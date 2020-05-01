@@ -1,40 +1,53 @@
-from neo4jrestclient.client import GraphDatabase
-from neo4jrestclient import client
+from py2neo import Graph, Node, Relationship, NodeMatcher
 from routesCalculate.database import config
 
 def getConnection():
-    return GraphDatabase(config.HOST, config.USERNAME, config.PASSWORD)
+    return Graph(password = config.PASSWORD)
 
 def createSimpleNode(prop, labelName):
+    db    = getConnection().begin()
+    city = Node(labelName, nome=prop)
+    db.create(city)
+    db.commit()
+
+def createRel(de, para, rel, distance):
     db    = getConnection()
-    label = db.labels.create(labelName)
-    node  = db.nodes.create(name = prop)
-    label.add(node)
+    node1 = getCity('Cidade', de)
+    node2 = getCity('Cidade', para)
+    KM  = Relationship(node1, rel, node2, distancia=distance)
+    KM2 = Relationship(node2, rel, node1, distancia=distance)
+    db.merge(KM)
+    db.merge(KM2)
 
-def createNodeWithRel(prop1, prop2, labelName, rel, cost, directional):
 
-    db    = getConnection()
-    label = db.labels.create(labelName)
-    node1  = db.nodes.create(name = prop1)
-    node2  = db.nodes.create(name = prop2)
-    label.add(node1, node2)
+def getDistance(de, para, rel):
+    db = getConnection()
+    node1 = getCity('Cidade', de)
+    node2 = getCity('Cidade', para)
+    print(de)
+    print(para)
+    distance = list(db.relationships.match((node1, node2), rel).limit(1))
+    return distance
 
-    node1.relationships.create(rel, node2, cost=cost) if directional is True else db.relationships.create(node1, rel, node2, cost=cost)
+
+def getCity(labels, nameCity):
+    db = getConnection()
+    vertice = db.nodes.match(labels, nome = nameCity).first()
+    return vertice
     
 
-
-def simpleSelect(labels, rel):
-    db    = getConnection()
-    template = 'MATCH(@label:label@)' + 'OPTIONAL MATCH(label)-[@r:rel@]-() RETURN label, r'
-                        
-    query = buildQuery(template, labels, rel)
-
-    results = db.query(query, returns=(client.Node, str, client.Node))
-    return results
-    
-
-def buildQuery(template, label, rel):
-    template = template.replace('@label:label@', 'label:'+label) if label is not None else template.replace('@label:label@', 'label')
-    template = template.replace('@r:rel@', 'r:'+rel) if rel is not None else template.replace('@r:rel@', 'r')
+def buildQuery(template, de, para):
+    template = template.replace('@cityFrom@', de)
+    template = template.replace('@cityTo@', para)
 
     return template
+
+def calcularShortestRoute (de, para):
+    template = "MATCH (start:Cidade{nome:'@cityFrom@'}), (end:Cidade{nome:'@cityTo@'}) \
+                CALL algo.shortestPath.stream(start, end, 'distancia') YIELD nodeId, cost \
+                MATCH (other:Cidade) WHERE id(other) = nodeId \
+                RETURN other.nome AS nome, cost "
+    template = buildQuery(template, de, para)
+    db = getConnection()
+    result = db.run(template).data()
+    return result
