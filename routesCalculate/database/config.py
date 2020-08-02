@@ -1,3 +1,3 @@
 HOST     = 'bolt://localhost:7687'
-USERNAME = 'germano'
-PASSWORD = 'germano'
+USERNAME = 'neo4j'
+PASSWORD = 'neo4j'
