@@ -17,7 +17,7 @@ def createRoad(request):
     roadKm = json.loads(request.body)['roadKm']
 
     print(de, para, roadKm)
-    neoData.createRel(de, para, 'km', roadKm)
+    neoData.createRoad(de, para, roadKm)
     return HttpResponse('Ola MUndo!')
 
 
@@ -48,5 +48,11 @@ def calcularShortestRoute(request):
     para = json.loads(request.body)['para']
     result = neoData.calcularShortestRoute(de, para)
     
+    resposta = json.dumps(result)
+    return HttpResponse(resposta, content_type='application/json')
+
+@csrf_exempt 
+def getAllCitysWithRoads(request):
+    result = neoData.getAllCitysWithRoads()
     resposta = json.dumps(result)
     return HttpResponse(resposta, content_type='application/json')
