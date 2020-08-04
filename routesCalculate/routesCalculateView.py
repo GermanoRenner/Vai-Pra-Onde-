@@ -46,9 +46,13 @@ def getDistance(request):
 def calcularShortestRoute(request):
     de = json.loads(request.body)['de']
     para = json.loads(request.body)['para']
-    result = neoData.calcularShortestRoute(de, para)
-    
-    resposta = json.dumps(result)
+    route = (neoData.calcularShortestRoute(de, para))
+    totalDistance = route[-1]['cost']
+    routeData = {
+        'rota': route,
+        'totalDistance': totalDistance
+    }
+    resposta = json.dumps(routeData)
     return HttpResponse(resposta, content_type='application/json')
 
 @csrf_exempt 
