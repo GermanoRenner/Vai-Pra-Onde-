@@ -43,8 +43,6 @@ def getCity(labels, nameCity):
 def buildQuery(template, de, para):
     template = template.replace('@cityFrom@', de)
     template = template.replace('@cityTo@', para)
-    # if km is not None:
-    #     template = template.replace('@km@', km)
 
     return template
 
@@ -52,7 +50,7 @@ def calcularShortestRoute (de, para):
     template = "MATCH (start:Cidade{nome:'@cityFrom@'}), (end:Cidade{nome:'@cityTo@'}) \
                 CALL algo.shortestPath.stream(start, end, 'distancia') YIELD nodeId, cost \
                 MATCH (other:Cidade) WHERE id(other) = nodeId \
-                RETURN other.nome AS nome, cost "
+                RETURN other.nome AS label, ID(other) as id, cost "
     template = buildQuery(template, de, para)
     db = getConnection()
     result = db.run(template).data()

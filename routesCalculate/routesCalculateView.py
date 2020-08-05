@@ -37,7 +37,6 @@ def getDistance(request):
     de = json.loads(request.body)['de']
     para = json.loads(request.body)['para']
     result = neoData.getDistance(de, para, 'km')
-    print('RESULTO', result)
     resposta = json.dumps(result)
     return HttpResponse(resposta, content_type='application/json')
 
@@ -46,10 +45,12 @@ def getDistance(request):
 def calcularShortestRoute(request):
     de = json.loads(request.body)['de']
     para = json.loads(request.body)['para']
-    route = (neoData.calcularShortestRoute(de, para))
+    route = neoData.calcularShortestRoute(de, para)
     totalDistance = route[-1]['cost']
+    edges = getEdgesRoutesPath(route)
     routeData = {
-        'rota': route,
+        'nodes': route,
+        'edges': edges,
         'totalDistance': totalDistance
     }
     resposta = json.dumps(routeData)
@@ -60,3 +61,17 @@ def getAllCitysWithRoads(request):
     result = neoData.getAllCitysWithRoads()
     resposta = json.dumps(result)
     return HttpResponse(resposta, content_type='application/json')
+
+
+def getEdgesRoutesPath(routes):
+    routePoints = []
+
+    for indice, route in enumerate(routes):
+        if indice+1 != len(routes):
+            routePoints.append({
+                    'source':route['id'], 
+                    'target':routes[indice+1]['id'],
+                    'label':'distancia',
+                    'id':indice
+            })
+    return routePoints
